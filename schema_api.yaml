@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: API tools Università della Calabria
+  version: 1.0.0
+  x-summary: API REST con servizi di utilità dell'Università della Calabria
+  description: API REST con servizi di utilità dell'Università della Calabria
+  contact:
+    name: Francesco Filicetti
+    url: https://www.unical.it/storage/addressbook/francesco.filicetti/
+    email: francesco.filicetti@unical.it
+  license:
+    name: AGPL-3.0-or-later
+    url: https://www.gnu.org/licenses/agpl-3.0.html
+paths:
+  /esse3/carriere-service-v1/carriere:
+    get:
+      operationId: esse3_carriere_service_v1_carriere_retrieve
+      description: Basato sul servizio https://unical.esse3.cineca.it/e3rest/docs/?urls.primaryName=Carriere%20Api%20V1%20(https%3A%2F%2Funical.esse3.cineca.it%2Fe3rest%2Fapi%2Fcarriere-service-v1)
+      summary: Carriere Service V1
+      parameters:
+      - in: query
+        name: cf
+        schema:
+          type: string
+          maxLength: 16
+          minLength: 16
+        description: Il codice fiscale dello studente
+        required: true
+      tags:
+      - Esse3 - Carriere v1
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /status:
+    get:
+      operationId: status_retrieve
+      description: Verifica se l'API è operativa.
+      summary: Health check del servizio
+      tags:
+      - Monitoraggio
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /token:
+    post:
+      operationId: token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /token/refresh:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /v1/check-user-status:
+    get:
+      operationId: v1_check_user_status_retrieve
+      description: Verifica che status di dipendente e di studente della persona sia
+        regolarmente attivo
+      parameters:
+      - in: query
+        name: cf
+        schema:
+          type: string
+          maxLength: 16
+          minLength: 16
+        description: Il codice fiscale dello studente
+        required: true
+      tags:
+      - Utilità
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomResponse'
+          description: ''
+components:
+  schemas:
+    CustomResponse:
+      type: object
+      properties:
+        employee:
+          type: boolean
+        student:
+          type: boolean
+      required:
+      - employee
+      - student
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - password
+      - refresh
+      - username
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
