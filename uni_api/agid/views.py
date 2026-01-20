@@ -2,7 +2,6 @@ from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiParam
 from drf_spectacular.types import OpenApiTypes
 
 from rest_framework.permissions import AllowAny
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,7 +13,6 @@ class HealthCheckView(APIView):
     Endpoint per il monitoraggio dello stato di salute dell'API (AgID compliant).
     """
     permission_classes = [AllowAny]
-    # ~ renderer_classes = [JSONRenderer]
     
     @extend_schema(
         summary="Health check del servizio",
